@@ -37,9 +37,6 @@ FALSE
 
     @weave.op
     def match_tool(self, task_description: str, tool_description: str, tool_implementation: str, load_file_name: str | None = None, save_file_name: str | None = None) -> str:
-        print(f"Task description: {task_description}")
-        print(f"Matching tool: {tool_description}")
-        print(f"Tool implementation: {tool_implementation}")
         if load_file_name:
             try:
                 with open(load_file_name, "r") as f:

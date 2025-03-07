@@ -28,15 +28,11 @@ class ToolAgentServer():
         @weave.op
         def generate_new_tool(summary: str):
             id = str(uuid.uuid4())
-            print(f"Generating new tool: {summary}")
             generated = generator.generate_tool_code(summary, "python", save_file_name=f"save_runs/generate_{id}.py")
-            print(generated)
-            print(f"Converting implementation to main function")
             try:
                 generated['implementation'] = formatter.generate_main_function(generated["implementation"], save_file_name=f"save_runs/formatted_{id}.py")
             except Exception as e:
                 print('exception:', e)
-            print(f"Adding tool to database")
 
             db_helper.add_tool(
                 id,
@@ -51,6 +47,7 @@ class ToolAgentServer():
 
             return db_helper.get_tool(id)
 
+        @weave.op
         def try_retrieve_tool(summary: str):
             results = db_helper.query(summary)
             ids = results['ids'][0]
@@ -80,8 +77,6 @@ class ToolAgentServer():
         )
         tool["env_variables"] =  list(map(str.strip, tool['env_variables'].split(","))) if tool['env_variables'] != "NONE" else []
         tool["dependencies"] = list(map(str.strip, tool['dependencies'].split(","))) if tool['dependencies'] != "NONE" else []
-        print(tool['env_variables'])
-        print(tool['dependencies'])
         tool['command'] = command
         return tool
 

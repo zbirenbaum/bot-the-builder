@@ -95,7 +95,6 @@ class PostgresDB:
         """
         self.cursor.execute(sql_context, (id,))
         result = self.cursor.fetchone()
-        print(result)
         if result:
             return {
                 "id": result[0],
@@ -107,5 +106,4 @@ class PostgresDB:
                 "implementation": result[6],
                 "dependencies": result[7]
             }
-        print(f"ERROR(401): Tool {id} not found")
         return None

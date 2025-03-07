@@ -3,8 +3,10 @@ import os
 import subprocess
 from dotenv import load_dotenv
 from typing import List
+import weave
 load_dotenv()
 
+@weave.op
 def run_command(id: str, command: str, implementation: str, env_variables: List[str], dependencies: List[str]):
     if env_variables:
         for var in env_variables:
@@ -40,20 +42,28 @@ def run_command(id: str, command: str, implementation: str, env_variables: List[
         # else:
         #     print("Output: \n{}\n".format(output))
 
-    # finally:
-    #     # Delete the temporary file
-    #     if os.path.exists(temp_file_name):
-    #         os.remove(temp_file_name)
+    finally:
+        # Delete the temporary file
+        if os.path.exists(temp_file_name):
+            os.remove(temp_file_name)
 
     def decode_bytes(byte_str: str):
         if isinstance(byte_str, bytes):
             return byte_str.decode('utf-8')
         return byte_str
+    try:
+        out = eval(decode_bytes(out)) if out else None
+        err = eval(decode_bytes(err)) if err else None
+    except:
+        out = decode_bytes(out) if out else None
+        err = decode_bytes(err) if err else None
     return [
-        eval(decode_bytes(out)) if out else None,
-        eval(decode_bytes(err)) if err else None]
+        out,
+        err
+    ]
 
 
+@weave.op
 def request_tool(task: str):
     response = requests.post('http://localhost:5000/api/genTool', json={'task': task})
     return response.json()
@@ -62,6 +72,7 @@ class ToolAgentClient():
     def __init__(self):
         pass
 
+    @weave.op
     def give_task(self, task: str):
         tool = request_tool(task)
         (out, err) = run_command(tool['id'], tool['command'], tool['implementation'], tool['env_variables'], tool['dependencies'])

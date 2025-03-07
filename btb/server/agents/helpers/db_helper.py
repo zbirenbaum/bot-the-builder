@@ -1,11 +1,13 @@
 from .postgres import PostgresDB
 from .vector_db import VectorDB
+import weave
 
 class DBAdapter:
     def __init__(self):
         self.postgres = PostgresDB()
         self.vector_db = VectorDB()
 
+    @weave.op
     def add_tool(self, id, description, arguments, argument_types, env_variables, command, implementation, dependencies):
         # document is description of a tool
         # we need to embed the document and add it to the vector database
@@ -17,7 +19,6 @@ class DBAdapter:
 
     def get_tool(self, id: str):
         # get a tool from the postgres database
-        print(f"Getting tool: {id}")
         return self.postgres.get_tool(id)
 
     def remove_tool(self, id: str):
